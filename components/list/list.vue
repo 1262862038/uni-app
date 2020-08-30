@@ -34,6 +34,8 @@
 		watch:{
 			tab(val) {
 				if(val.length === 0) return false
+				this.listCatchData = {}
+				this.load = {}
 				this.getList(this.activeIndex)
 			}
 		},

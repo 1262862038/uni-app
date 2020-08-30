@@ -2,7 +2,13 @@
 const db = uniCloud.database()
 exports.main = async (event, context) => {
 	const $ = db.command.aggregate
-	const {user_id} = event
+	const {user_id, type} = event
+	let matchObj = {}
+	if(type != 'all') {
+		matchObj = {
+			current:true
+		}
+	}
 	let userinfo = await db.collection('user').doc(user_id).get()
 	userinfo = userinfo.data[0]
 	// let label = await db.collection('label').get()
@@ -11,6 +17,7 @@ exports.main = async (event, context) => {
 	.addFields({
 		current: $.in(['$_id', $.ifNull([userinfo.label_ids, []])])
 	})
+	.match(matchObj)
 	.end()
 	return {
 		code: 200,

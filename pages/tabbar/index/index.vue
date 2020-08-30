@@ -17,13 +17,19 @@
 			}
 		},
 		onLoad() {
+			uni.$on('labelChange', (res) => {
+				// console.log('index接收到了其他页面', res)
+				this.tabList = []
+				this.activeIndex = 0
+				this.tabIndex = 0
+				this.getLabel()
+			}),
 			this.getLabel()
 		},
 		methods: {
+			
 			async getLabel() {
-				const res = await this.$api.get_label({
-					name: 'get_label'
-				})
+				const res = await this.$api.get_label()
 				console.log('ressss', res)
 				this.tabList = [{name: "全部"},...res.data]
 			},
