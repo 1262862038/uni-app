@@ -14,3 +14,6 @@ export const get_search = (data) => {
 export const update_label = (data) => {
 	return $http({url: "update_label", data})
 }
+export const get_detail = (data) => {
+	return $http({url: "get_detail", data})
+}

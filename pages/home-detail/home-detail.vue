@@ -15,10 +15,12 @@
 			</view>
 		</view>
 		<view class="detail-content">
-			详情数据
+			<view class="detail-html" >
+				<u-parse :content='formData.content' :noData="noData"></u-parse>
+			</view>
 		</view>
 		<view class="detail-bottom">
-			<view class="detail-bottom_input">
+			<view class="detail-bottom_input" @click="openComment">
 				<text>谈谈你的看法</text>
 				<uni-icons type="compose" size="16" color="#f07373"></uni-icons>
 			</view>
@@ -35,19 +37,59 @@
 				</view>
 			</view>
 		</view>
+		<uni-popup type="bottom" ref='popup' :maskClick="false">
+			<view class="popup-wrap">
+				<view class="popup-header">
+					<text class="popup-header_item" @click="close">取消</text>
+					<text class="popup-header_item" @click="submit">发布</text>
+				</view>
+				<view class="popup-content">
+					<textarea class="popup-textarea" v-model="commentsValue" placeholder="请输入评论内容" maxlength="200" fixed />
+					<view class="popup-count">{{commentsValue.length}}/200</view>
+					
+				</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
 <script>
+	import uParse from '@/components/gaoyia-parse/parse.vue'
 	export default {
+		components:{
+			uParse
+		},
 		data() {
 			return {
-				formData: {}
+				formData: {},
+				noData: '<p style="text-align: center; color:#666">详情加载中</p>',
+				// 输入框的值
+				commentsValue: ''
 			};
 		},
 		onLoad(query) {
-			console.log('query', JSON.parse(query.params))
+			// console.log('query', JSON.parse(query.params))
 			this.formData = JSON.parse(query.params)
+			this.getDetail()
+		},
+		onReady() {
+		},
+		methods:{
+			// 获取详情信息
+			async getDetail() {
+				const res = await this.$api.get_detail({article_id: this.formData._id})
+				console.log('detailRes', res)
+				this.formData = res.data
+			},
+			openComment() {
+				this.$refs.popup.open()
+			},
+			close() {
+				this.$refs.popup.close()
+			},
+			submit() {
+				this.$refs.popup.close()
+			}
 		}
 	}
 </script>
@@ -98,8 +140,11 @@
 		}
 	}
 	.detail-content {
-		height: 1000px;
-		border: 1px solid red;
+		margin-top: 20px;
+		min-height: 500px;
+		.detail-html {
+			padding:0 15px;
+		}
 	}
 	.detail-bottom {
 		position: fixed;
@@ -138,6 +183,36 @@
 				justify-content: center;
 				width: 44px;
 			}
+		}
+	}
+	.popup-wrap {
+		background-color: #fff;
+		.popup-header {
+			display: flex;
+			justify-content: space-between;
+			font-size: 14px;
+			color: #666;
+			border-bottom: 1px solid #F5F5F5;
+			.popup-header_item {
+				height: 50px;
+				line-height: 50px;
+				padding: 0 15px;
+			}
+		}
+		.popup-content {
+			width: 100%;
+			padding: 15px;
+			box-sizing: border-box;
+			.popup-textarea {
+				width: 100%;
+				height: 200px;
+			}
+		}
+		.popup-count {
+			display: flex;
+			justify-content: flex-end;
+			font-size: 12px;
+			color: #999;
 		}
 	}
 }
