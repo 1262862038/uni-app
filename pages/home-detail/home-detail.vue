@@ -21,8 +21,8 @@
 			</view>
 			<view class="detail-comment">
 				<view class="comment-title">最新评论</view>
-				<view class="comment-content">
-					<comment-box v-for='item in 5'></comment-box>
+				<view class="comment-content" v-for="item in commentsList" :key='item.comment_id'>
+					<comment-box :comments='item' @reply='reply'></comment-box>
 				</view>
 			</view>
 		</view>
@@ -71,13 +71,16 @@
 				formData: {},
 				noData: '<p style="text-align: center; color:#666">详情加载中</p>',
 				// 输入框的值
-				commentsValue: ''
+				commentsValue: '',
+				commentsList: [],
+				replyFormData: {}
 			};
 		},
 		onLoad(query) {
 			// console.log('query', JSON.parse(query.params))
 			this.formData = JSON.parse(query.params)
 			this.getDetail()
+			this.getComments()
 		},
 		onReady() {
 		},
@@ -89,18 +92,20 @@
 				this.formData = res.data
 			},
 			// 更新评论
-			async setUpdateComment() {
-				uni.showLoading()
-				const res = await this.$api.update_comment({
+			async setUpdateComment(content) {
+				const formData = {
 					article_id: this.formData._id,
-					content: this.commentsValue
-				})
+					...content
+				}
+				uni.showLoading()
+				const res = await this.$api.update_comment(formData)
 				uni.hideLoading()
 				uni.showToast({
 					title: '发布成功'
 				})
+				this.getComments()
 				this.close()
-				console.log('commentRes', res)
+				// console.log('commentRes', res)
 			},
 			openComment() {
 				this.$refs.popup.open()
@@ -116,7 +121,25 @@
 					})
 					return false
 				}
-				this.setUpdateComment()
+				this.setUpdateComment({
+					content: this.commentsValue,
+					...this.replyFormData
+				})
+			},
+			// 获取评论数据
+			async getComments() {
+				const res = await this.$api.get_comments({
+					article_id: this.formData._id
+				})
+				console.log('commentsRes', res)
+				this.commentsList = res.data
+			},
+			// 回复评论
+			reply(comment) {
+				this.replyFormData = {
+					"comment_id": comment.comment_id
+				}
+				this.openComment()
 			}
 		}
 	}
