@@ -4,7 +4,7 @@ const $ = db.command.aggregate
 const dbCmd = db.command
 exports.main = async (event, context) => {
 	
-	const {user_id, article_id, content,comment_id = ''} = event
+	const {user_id, article_id, content,comment_id = '', reply_id = '', is_reply = false} = event
 	
 	let user = await db.collection("user").doc(user_id).get()
 	user = user.data[0]
@@ -17,6 +17,7 @@ exports.main = async (event, context) => {
 		comment_id: genID(5),
 		comment_content: content,
 		create_time: new Date().getTime(),
+		is_reply: is_reply,
 		author:{
 			author_id: user_id,
 			author_name: user.author_name,
@@ -31,11 +32,17 @@ exports.main = async (event, context) => {
 	} else {
 		// 获取评论索引
 		let commentIndex = comments.findIndex(v => v.comment_id == comment_id)
-		//获取要回复的评论人信息
-		let commentAuthor = comments.find(v => v.comment_id == comment_id)
+		let commentAuthor = ''
+		if(is_reply) {
+			// 子回复
+			commentAuthor = comments[commentIndex].replys.find(v => v.comment_id === reply_id)
+		} else {
+			//主回复
+			//获取要回复的评论人信息
+			commentAuthor = comments.find(v => v.comment_id == comment_id)
+		}
 		commentAuthor = commentAuthor.author.author_name
 		commentObj.to = commentAuthor
-		
 		// 更新回复信息
 		commentObj = {
 			[commentIndex]: {
