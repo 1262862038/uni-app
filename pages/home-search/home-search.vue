@@ -91,7 +91,6 @@
 				this.getSearch(this.value)
 			},
 			clear() {
-				
 				// 清除历史记录
 				this.$store.dispatch('clearHistory')
 				uni.showToast({

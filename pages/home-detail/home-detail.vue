@@ -17,8 +17,7 @@
 		</view>
 		<view class="detail-content">
 			<view class="detail-html" >
-				<!-- <u-parse :content='formData.content' :noData="noData"></u-parse> -->
-				内容
+				<u-parse :content='formData.content' :noData="noData"></u-parse>
 			</view>
 			<view class="detail-comment">
 				<view class="comment-title">最新评论</view>
@@ -33,7 +32,7 @@
 				<uni-icons type="compose" size="16" color="#f07373"></uni-icons>
 			</view>
 			<view class="detail-bottom_icons">
-				<view class="detail-bottom_icons-box">
+				<view class="detail-bottom_icons-box" @click="open">
 					<uni-icons type="chat" size="22" color="#f07373"></uni-icons>
 					
 				</view>
@@ -45,19 +44,7 @@
 				</view>
 			</view>
 		</view>
-		<uni-popup type="bottom" ref='popup' :maskClick="false">
-			<view class="popup-wrap">
-				<view class="popup-header">
-					<text class="popup-header_item" @click="close">取消</text>
-					<text class="popup-header_item" @click="submit">发布</text>
-				</view>
-				<view class="popup-content">
-					<textarea class="popup-textarea" v-model="commentsValue" placeholder="请输入评论内容" maxlength="200" fixed />
-					<view class="popup-count">{{commentsValue.length}}/200</view>
-					
-				</view>
-			</view>
-		</uni-popup>
+		<pop-up ref='popup' :article_id='formData._id' :replyFormData='replyFormData' @updateCommentSuccess='updateCommentSuccess'></pop-up>
 	</view>
 </template>
 
@@ -92,43 +79,14 @@
 				console.log('detailRes', res)
 				this.formData = res.data
 			},
-			// 更新评论
-			async setUpdateComment(content) {
-				const formData = {
-					article_id: this.formData._id,
-					...content
-				}
-				uni.showLoading()
-				const res = await this.$api.update_comment(formData)
-				uni.hideLoading()
-				uni.showToast({
-					title: '发布成功'
-				})
+			openComment() {
+				this.$refs.popup.openComment()
+			},
+			updateCommentSuccess() {
 				this.getComments()
 				this.replyFormData.reply_id = ''
-				this.commentsValue = ''
-				this.close()
-				// console.log('commentRes', res)
 			},
-			openComment() {
-				this.$refs.popup.open()
-			},
-			close() {
-				this.$refs.popup.close()
-			},
-			submit() {
-				if(!this.commentsValue) {
-					uni.showToast({
-						title: '请输入评论内容',
-						icon:'none'
-					})
-					return false
-				}
-				this.setUpdateComment({
-					content: this.commentsValue,
-					...this.replyFormData
-				})
-			},
+		
 			// 获取评论数据
 			async getComments() {
 				const res = await this.$api.get_comments({
@@ -146,8 +104,8 @@
 				if(comment.comments.reply_id) {
 					this.replyFormData.reply_id = comment.comments.reply_id
 				}
-				console.log('this.replyFormData', this.replyFormData)
-				this.openComment()
+				// console.log('this.replyFormData', this.replyFormData)
+				this.$refs.popup.openComment()
 			},
 			// 关注作者
 			follow(author_id) {
@@ -183,6 +141,7 @@
 					title: this.formData.is_like ? '收藏成功': '取消收藏',
 					icon:'none'
 				})
+				uni.$emit('update_article')
 			},
 			// 点击点赞
 			thumbsup(article_id) {
@@ -203,6 +162,11 @@
 					icon:'none'
 				})
 				console.log('ressssss', res)
+			},
+			open() {
+				uni.navigateTo({
+					url: '../detail-comments/detail-comments?id=' + this.formData._id
+				})
 			}
 		}
 	}
@@ -319,35 +283,35 @@
 			}
 		}
 	}
-	.popup-wrap {
-		background-color: #fff;
-		.popup-header {
-			display: flex;
-			justify-content: space-between;
-			font-size: 14px;
-			color: #666;
-			border-bottom: 1px solid #F5F5F5;
-			.popup-header_item {
-				height: 50px;
-				line-height: 50px;
-				padding: 0 15px;
-			}
-		}
-		.popup-content {
-			width: 100%;
-			padding: 15px;
-			box-sizing: border-box;
-			.popup-textarea {
-				width: 100%;
-				height: 200px;
-			}
-		}
-		.popup-count {
-			display: flex;
-			justify-content: flex-end;
-			font-size: 12px;
-			color: #999;
-		}
-	}
+	// .popup-wrap {
+	// 	background-color: #fff;
+	// 	.popup-header {
+	// 		display: flex;
+	// 		justify-content: space-between;
+	// 		font-size: 14px;
+	// 		color: #666;
+	// 		border-bottom: 1px solid #F5F5F5;
+	// 		.popup-header_item {
+	// 			height: 50px;
+	// 			line-height: 50px;
+	// 			padding: 0 15px;
+	// 		}
+	// 	}
+	// 	.popup-content {
+	// 		width: 100%;
+	// 		padding: 15px;
+	// 		box-sizing: border-box;
+	// 		.popup-textarea {
+	// 			width: 100%;
+	// 			height: 200px;
+	// 		}
+	// 	}
+	// 	.popup-count {
+	// 		display: flex;
+	// 		justify-content: flex-end;
+	// 		font-size: 12px;
+	// 		color: #999;
+	// 	}
+	// }
 }
 </style>

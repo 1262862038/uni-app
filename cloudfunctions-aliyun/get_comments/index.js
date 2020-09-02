@@ -3,7 +3,7 @@ const db = uniCloud.database()
 const $ = db.command.aggregate
 exports.main = async (event, context) => {
 	
-	const { user_id, article_id } = event
+	const { user_id, article_id, pageSize=10, page=1 } = event
 	//返回数据给客户端
 	const list = await db.collection('article')
 	.aggregate()
@@ -18,6 +18,8 @@ exports.main = async (event, context) => {
 	.replaceRoot({
 		newRoot:'$comments'
 	})
+	.skip(pageSize * (page -1 ))
+	.limit(pageSize)
 	.end()
 	return {
 		code: 200,
