@@ -32,3 +32,6 @@ export const update_thumbs = (data) => {
 export const get_follow = (data) => {
 	return $http({url: "get_follow", data})
 }
+export const get_author = (data) => {
+	return $http({url: "get_author", data})
+}

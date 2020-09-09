@@ -8,14 +8,18 @@
 			</view>
 		</view>
 		<view class="follow-list">
-			<swiper class="follow-list_swiper">
+			<swiper class="follow-list_swiper" :current="activeIndex" @change="change">
 				<swiper-item>
 					<list-scroll>
-						<list-card v-for='item in list' :key='item._id' :item='item'></list-card>
+						<uni-load-more v-if="list.length === 0 && !articleShow" status="loading" iconType="snow"></uni-load-more>
+						<list-card types='follow' v-for='item in list' :key='item._id' :item='item'></list-card>
+						<view class="no-data" v-if="articleShow">没有数据</view>
 					</list-scroll>
 				</swiper-item>
 				<swiper-item>
-					<view class="swiper-item">作者</view>
+					<list-scroll>
+						<list-author v-for='item in authorList' :key='item.id' :item='item'></list-author>
+					</list-scroll>
 				</swiper-item>
 			</swiper>
 		</view>
@@ -27,22 +31,40 @@
 		data() {
 			return {
 				activeIndex: 0,
-				list: []
-				
+				list: [],
+				articleShow: false,
+				authorList: []
 			}
 		},
 		onLoad() {
+			uni.$on('update_article', () => {
+				this.getFollowList()
+			})
+			uni.$on('update_author', () => {
+				this.getAuthor()
+			})
 			this.getFollowList()
+			this.getAuthor()
 		},
 		methods: {
 			tab(i) {
 				this.activeIndex = i
+			},
+			change(e) {
+				this.activeIndex = e.detail.current
 			},
 			// 获取列表数据
 			async getFollowList() {
 				const res = await this.$api.get_follow()
 				// console.log('re121s', res)
 				this.list = res.data
+				this.articleShow = this.list.length === 0 ? true : false
+			},
+			//获取关注作者列表
+			async getAuthor() {
+				const res = await this.$api.get_author()
+				console.log('ressss', res)
+				this.authorList = res.data
 			}
 		}
 	}
@@ -95,5 +117,12 @@
 				}
 			}
 		}
+	}
+	
+	.no-data {
+		padding: 50px;
+		font-size: 14px;
+		color: #999;
+		text-align: center;
 	}
 </style>

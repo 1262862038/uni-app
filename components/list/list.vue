@@ -40,10 +40,14 @@
 			}
 		},
 		created() {
-			uni.$on('update_article', () => {
-				this.listCatchData = {}
-				this.load = {}
-				this.getList(this.activeIndex)
+			uni.$on('update_article', (e) => {
+				console.log('eeee', e)
+				if(e === 'follow') {
+					this.listCatchData = {}
+					this.load = {}
+					this.getList(this.activeIndex)
+				}
+				
 			})
 		},
 		methods: {

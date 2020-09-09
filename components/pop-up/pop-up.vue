@@ -67,12 +67,9 @@
 				uni.showToast({
 					title: '发布成功'
 				})
-				// this.getComments()
-				// this.replyFormData.reply_id = ''
 				this.$emit('updateCommentSuccess')
 				this.commentsValue = ''
 				this.close()
-				// console.log('commentRes', res)
 			},
 		}
 	}
