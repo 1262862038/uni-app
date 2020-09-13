@@ -14,7 +14,9 @@
         }
         ,{
             "path" : "pages/tabbar/my/my",
-            "style" : {}
+            "style" : {
+				"navigationBarTitleText":"个人中心"
+			}
         }
         ,{
             "path" : "pages/home-search/home-search",
@@ -36,6 +38,18 @@
         }
         ,{
             "path" : "pages/detail-comments/detail-comments",
+            "style" : {
+				"navigationBarTitleText":"评论列表"
+			}
+        }
+        ,{
+            "path" : "pages/my-article/my-article",
+            "style" : {
+				"navigationBarTitleText":"我的文章"
+			}
+        }
+        ,{
+            "path" : "pages/feedback/feedback",
             "style" : {}
         }
     ],
